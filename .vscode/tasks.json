@@ -17,7 +17,14 @@
             "label": "run",
             "command": "dotnet run",
             "type": "shell",
+            "problemMatcher": "$msCompile",
+        },
+        {
+            "label": "test",
+            "command": "dotnet test",
+            "type": "shell",
+            "group": "test",
             "problemMatcher": "$msCompile"
-        }
+          }
     ]
 }

@@ -1,14 +1,13 @@
 ﻿open System
-open System.IO
+open FrequencyAggregator
 
 [<EntryPoint>]
 let main argv =
     let filename = "input.txt"
 
-    let sum =
-        File.ReadLines(filename)
-        |> Seq.map Int32.Parse
-        |> Seq.sum
+    let dupe = 
+        NumberListFromFile filename
+        |> FindFirstDuplicateSum
 
-    printfn "%d" sum
+    printfn "%d" dupe
     0 // return an integer exit code
