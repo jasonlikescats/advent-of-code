@@ -26,12 +26,8 @@ module FrequencyAggregator
         let mutable cache = Set.empty
         let cacheIfNotFound value =
             let found = cache.Contains value
-
             if not found then
-                if cache.Count % 100 = 0 then
-                    printf "cache size is %d\n" cache.Count
                 cache <- cache.Add value
-
             found
 
         runningSum

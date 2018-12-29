@@ -58,3 +58,11 @@ let ``Day 1 Part 2 - sample input 4``() =
         [ 7; 7; -2; -7; -4 ]
         |> FindFirstDuplicateSum
     Assert.Equal(14, firstDupe)
+
+[<Fact>]
+let ``Day 1 Part 2 - duplicate frequency sum in file`` () =
+    let sum =
+        NumberListFromFile "../../../input/day1.txt"
+        |> Seq.toList
+        |> FindFirstDuplicateSum
+    Assert.Equal(464, sum)
