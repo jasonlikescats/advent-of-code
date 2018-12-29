@@ -1,4 +1,4 @@
-module Tests
+module Day1_Tests
 
 open FrequencyAggregator
 open System
