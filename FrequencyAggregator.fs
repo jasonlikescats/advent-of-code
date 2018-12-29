@@ -2,46 +2,41 @@ module FrequencyAggregator
     open System
     open System.IO
 
-    let private lastOrZero (ls:int list) =
-        match List.tryLast ls with
+    let private lastOrZero (ls:int seq) =
+        match Seq.tryLast ls with
         | None -> 0
         | Some x -> x
 
-    // TODO: Seq.scan pretty much allows for this
-    let rec StepSums (numbers:int list)(result:int list) =
-        match Seq.isEmpty <| numbers with
-        | true -> result
-        | false ->
-            let currentStepSum = numbers.Head + (lastOrZero result)
-            let newResult = List.append result [ currentStepSum ]
-            StepSums numbers.Tail newResult
-
-    let rec SumSequence (numbers:int list) =
-        StepSums numbers []
+    let rec SumSequence (numbers:int seq) =
+        numbers
+        |> Seq.scan (+) 0 
         |> lastOrZero
+
+    let FindFirstDuplicateSum (numbers:int list) =
+        let getAtModulo (collection:'a list) (index) =
+            let wrappedIndex = index % collection.Length
+            collection.Item wrappedIndex
+
+        let infiniteSource = 
+            getAtModulo numbers
+            |> Seq.initInfinite
+
+        let rec findFirstDuplicate (numbers:int seq) (seenCache:int Set) =
+            let candidate = Seq.head numbers
+            match Set.contains candidate seenCache with
+            | true -> candidate
+            | false ->
+                if seenCache.Count % 100 = 0 then
+                    printf "cache size is %d\n" seenCache.Count
+
+                let updatedCache = Set.add candidate seenCache
+                let tail = Seq.tail numbers
+                findFirstDuplicate tail updatedCache
+
+        let runningSum = Seq.scan (+) 0 infiniteSource
+
+        findFirstDuplicate runningSum Set.empty
 
     let NumberListFromFile path =
         File.ReadLines(path)
         |> Seq.map Int32.Parse
-        |> Seq.toList
-
-    let rec FindFirstDuplicateSum (numbers:int list) =
-        let rec findFirstDuplicate (numbers:int list) (seenCache:int Set) =
-            match List.isEmpty <| numbers with
-            | true -> None
-            | false ->
-                let candidate = numbers.Head
-                match Set.contains candidate seenCache with
-                | true -> Some numbers.Head
-                | false ->
-                    let updatedCache = Set.add candidate seenCache
-                    findFirstDuplicate numbers.Tail updatedCache
-
-        let stepSums = StepSums numbers [ 0 ]
-
-        let result = findFirstDuplicate stepSums Set.empty
-
-        // TODO: This is dirty and can stack overflow on the wrong input.
-        match result with
-        | None -> FindFirstDuplicateSum (List.append numbers numbers)
-        | Some x -> x 
