@@ -21,21 +21,21 @@ module FrequencyAggregator
             getAtModulo numbers
             |> Seq.initInfinite
 
-        let rec findFirstDuplicate (numbers:int seq) (seenCache:int Set) =
-            let candidate = Seq.head numbers
-            match Set.contains candidate seenCache with
-            | true -> candidate
-            | false ->
-                if seenCache.Count % 100 = 0 then
-                    printf "cache size is %d\n" seenCache.Count
-
-                let updatedCache = Set.add candidate seenCache
-                let tail = Seq.tail numbers
-                findFirstDuplicate tail updatedCache
-
         let runningSum = Seq.scan (+) 0 infiniteSource
 
-        findFirstDuplicate runningSum Set.empty
+        let mutable cache = Set.empty
+        let cacheIfNotFound value =
+            let found = cache.Contains value
+
+            if not found then
+                if cache.Count % 100 = 0 then
+                    printf "cache size is %d\n" cache.Count
+                cache <- cache.Add value
+
+            found
+
+        runningSum
+        |> Seq.find cacheIfNotFound
 
     let NumberListFromFile path =
         File.ReadLines(path)
