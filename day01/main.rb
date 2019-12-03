@@ -8,12 +8,7 @@ module Day01
 
         def self.get_module_fuel_recursive(mass)
             fuel = get_module_fuel_naive(mass)
-            total_fuel = fuel
-            while fuel > 0 do
-                fuel = get_module_fuel_naive(fuel)
-                total_fuel += fuel
-            end
-            total_fuel
+            fuel > 0 ? fuel + get_module_fuel_recursive(fuel) : fuel
         end
     end
 
