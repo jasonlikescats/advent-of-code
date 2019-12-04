@@ -6,12 +6,16 @@ module Day03
             @x, @y = x, y
         end
 
+        attr_reader :x
+        attr_reader :y
+
         def manhattan_distance_from_origin
             @x.abs + @y.abs
         end
 
-        attr_reader :x
-        attr_reader :y
+        def origin?
+            @x == 0 && @y == 0
+        end 
     end
 
     class LineSegment
@@ -30,6 +34,22 @@ module Day03
             @head.y == @tail.y
         end
 
+        def length
+            (@tail.x - @head.x).abs + (@tail.y - @head.y).abs
+        end
+
+        def point_on_segment(point)
+            point.x <= [@head.x, @tail.x].max &&
+            point.x >= [@head.x, @tail.x].min &&
+            point.y <= [@head.y, @tail.y].max &&
+            point.y >= [@head.y, @tail.y].min
+        end
+
+        def point_distance_from_head(point)
+            # pre-supposes that point is on the line segment
+            (point.x - @head.x).abs + (point.y - @head.y).abs
+        end
+
         def self.intersect_at(line1, line2)
             return nil if line1.vertical? && line2.vertical?
             return nil if line1.horizontal? && line2.horizontal?
@@ -40,16 +60,12 @@ module Day03
             vert_x = vertical.head.x
             hori_y = horizontal.head.y
 
-            x_in_range =
-                vert_x < [horizontal.head.x, horizontal.tail.x].max &&
-                vert_x > [horizontal.head.x, horizontal.tail.x].min
-            y_in_range =
-                hori_y < [vertical.head.y, vertical.tail.y].max &&
-                hori_y > [vertical.head.y, vertical.tail.y].min
+            candidate = Coordinate.new(vert_x, hori_y)
 
-            return nil if !x_in_range || !y_in_range
+            return nil if !horizontal.point_on_segment(candidate)
+            return nil if !vertical.point_on_segment(candidate)
 
-            Coordinate.new(vert_x, hori_y)
+            candidate
         end
     end
 
@@ -87,12 +103,25 @@ module Day03
         for seg1_elem in segments1
             for seg2_elem in segments2
                 coord = LineSegment.intersect_at(seg1_elem, seg2_elem)
-                if coord != nil 
+                if coord != nil && !coord.origin?
                     intersections.push(coord)
                 end
             end
         end
         intersections
+    end
+
+    def self.path_distance_to_point(wire_segments, point)
+        total = 0
+        for seg in wire_segments
+            if seg.point_on_segment(point)
+                total += seg.point_distance_from_head(point)
+                break
+            end
+
+            total += seg.length
+        end
+        total
     end
 
     def self.part1(wire1_path, wire2_path)
@@ -106,10 +135,17 @@ module Day03
     end
 
     def self.part2(wire1_path, wire2_path)
-        ""
+        wire1_segments = get_line_segments(wire1_path)
+        wire2_segments = get_line_segments(wire2_path)
+
+        intersections = find_intersection_points(wire1_segments, wire2_segments)
+        summed_path_distances = intersections.map { |coord|
+            path_distance_to_point(wire1_segments, coord) + path_distance_to_point(wire2_segments, coord)
+        }
+        
+        summed_path_distances.min
     end
 end
-
 
 parsed = CSV.parse(File.read("input.txt"))
 wire1_path = parsed[0]
