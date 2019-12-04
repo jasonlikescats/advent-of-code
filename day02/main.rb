@@ -1,4 +1,4 @@
-require "CSV"
+require "csv"
 
 module Day02
     class ProgramRunner
