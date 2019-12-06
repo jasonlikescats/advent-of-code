@@ -20,7 +20,15 @@ module Day05
     end
 
     def self.part2(intcodes)
-        "Not Implemented"
+        output = nil
+
+        input_source = lambda { 5 }
+        output_sink = lambda { |x| output = x }
+
+        computer = ShipComputer::ProgramProcessor.new(intcodes, input_source, output_sink)
+        computer.execute
+
+        output
     end
 end
 
