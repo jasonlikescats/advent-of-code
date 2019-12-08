@@ -40,7 +40,6 @@ module ShipComputer
         end
 
         def value
-            puts "Yield value=#{@value}"
             @value
         end
     end
@@ -51,12 +50,10 @@ module ShipComputer
         end
 
         def value
-            puts "Load addr=#{@address}"
             @memory[@address]
         end
 
         def set_value(new_value)
-            puts "Store addr=#{@address} <- #{new_value}"
             @memory[@address] = new_value
         end
     end
