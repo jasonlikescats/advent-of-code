@@ -25,38 +25,37 @@ module Day06
         count_orbits("COM", orbitals, 0)
     end
 
-    def self.find_ancestors(object, orbitals, ancestors)
+    def self.path_to_object(object, orbitals, ancestors)
         orbit = orbitals.find { |o| o[1] == object }
         
         if orbit            
             orbiting = orbit[0]
-            ancestors.append orbiting
+            ancestors.prepend orbiting
 
-            find_ancestors(orbiting, orbitals, ancestors)
+            path_to_object(orbiting, orbitals, ancestors)
         end
 
         ancestors
     end
 
-    def self.indices_of_first_shared(arr1, arr2)
-        arr1.each_with_index { |elem1, index1|
-            index2 = arr2.find_index elem1
-            if index2
-                return [index1, index2]
-            end
-        }
+    def self.path_from_common(arr1, arr2)
+        while arr1[0] == arr2[0]
+            return path_from_common(arr1[1..], arr2[1..])
+        end
+
+        [arr1, arr2]
     end
 
     def self.part2(input_file)
         orbitals = read_orbitals(input_file)
 
-        you = find_ancestors("YOU", orbitals, [])
-        san = find_ancestors("SAN", orbitals, [])
-        indices_of_shared = indices_of_first_shared(you, san)
+        you = path_to_object("YOU", orbitals, [])
+        san = path_to_object("SAN", orbitals, [])
+        path_from_shared = path_from_common(you, san)
 
         # Distance between YOU and SAN is the sum of the distance to
         # the first shared common ancestor
-        indices_of_shared[0] + indices_of_shared[1]
+        path_from_shared[0].count + path_from_shared[1].count
     end
 end
 
