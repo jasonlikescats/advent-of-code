@@ -14,9 +14,63 @@ module Day08
             @layers = layers_data
         end
 
-        attr_reader :width
-        attr_reader :height
         attr_reader :layers
+
+        def decode
+            DecodedSpaceImage.new(
+                @width,
+                @height,
+                @layers.reduce(&method(:apply_layer)))
+        end
+
+        protected
+        
+        Black = 0
+        White = 1
+        Transparent = 2
+        
+        private
+        
+        def apply_layer(top, bottom)
+            top
+                .zip(bottom)
+                .map(&method(:resolve_layer_color))
+        end
+
+        def resolve_layer_color(pixels)
+            top_pixel = pixels[0]
+            bottom_pixel = pixels[1]
+
+            top_pixel == Transparent ? bottom_pixel : top_pixel
+        end
+    end
+
+    class DecodedSpaceImage < SpaceImage
+        def initialize(width, height, decoded_data)
+            super(width, height, decoded_data)
+
+            if decoded_data.length != (width * height)
+                raise "Space image appears to be encoded (length mismatch)"
+            end
+        end
+
+        def rows
+            @layers.each_slice(@width)
+        end
+
+        def pretty_print
+            rows
+                .map(&method(:pretty_print_row))
+                .join("\n")
+        end
+
+        private
+
+        def pretty_print_row row
+            row
+                .map {|c| c == Black ? 	"\u2588" : " "}
+                .join
+        end
     end
 
     def self.part1(width, height, image_data)
@@ -27,7 +81,11 @@ module Day08
         fewest_zeroes_layer.count(1) * fewest_zeroes_layer.count(2)
     end
 
-    def self.part2(image_data)
+    def self.part2(width, height, image_data)
+        encoded_image = SpaceImage.load(width, height, image_data)
+        decoded_image = encoded_image.decode
+
+        decoded_image.pretty_print
     end
 end
 
@@ -36,6 +94,6 @@ image_data = File
     .strip!
     .each_char
     .map(&:to_i)
-    
+
 puts "Part 1: " + Day08.part1(25, 6, image_data).to_s
-puts "Part 2: " + Day08.part2(image_data).to_s
+puts "Part 2:\n" + Day08.part2(25, 6, image_data).to_s
