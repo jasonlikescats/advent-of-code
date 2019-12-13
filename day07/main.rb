@@ -2,27 +2,35 @@ require "csv"
 require "./ship_computer.rb"
 
 module Day07
-    def self.run_amplifier_controller(intcodes, input_phase_setting, input_signal)
-        output = nil
-        memory = intcodes.map(&:clone)
-        inputs = [input_phase_setting, input_signal]
-        output_sink = lambda { |x| output = x }
-
-        computer = ShipComputer::ProgramProcessor.new(memory, inputs, output_sink)
-        computer.execute
-
-        output
+    def self.start_new_aplifier_controller(intcodes, phase_setting)
+        amp = ShipComputer::ProgramProcessor.new(intcodes)
+        amp.queue_input phase_setting
+        amp.execute
+        amp
     end
 
-    def self.run_amplifier_chain(intcodes, input_phases)
-        output = nil;
-        input_signal = 0;
-        for phase in input_phases
-            output = run_amplifier_controller(intcodes, phase, input_signal)
-            input_signal = output
-        end
+    def self.create_amp_controllers(intcodes, input_phases)
+        input_phases
+            .map { |phase| start_new_aplifier_controller(intcodes, phase) }
+    end
 
-        output
+    def self.run_chain(amp_controllers, input_signal)
+        amp_controllers
+            .reduce(input_signal) { |signal, amp|
+                amp.queue_input signal
+                amp.read_output
+            }
+    end
+
+    def self.run_amplifier_loop(intcodes, input_phases, input_signal)
+        amps = create_amp_controllers(intcodes, input_phases)
+
+        signal = input_signal
+        while amps.any? { |amp| !amp.halted? }
+            output_signal = run_chain(amps, signal)
+            signal = output_signal
+        end
+        signal
     end
 
     def self.part1(intcodes)
@@ -30,12 +38,20 @@ module Day07
         phase_candidates = phase_values.permutation.to_a
 
         phase_candidates
-            .map { |c| run_amplifier_chain(intcodes, c) }
+            .map { |c|
+                amps =  create_amp_controllers(intcodes, c)
+                run_chain(amps, 0)
+            }
             .max
     end
 
     def self.part2(intcodes)
-        "Incomplete"
+        phase_values = [5, 6, 7, 8, 9]
+        phase_candidates = phase_values.permutation.to_a
+
+        phase_candidates
+            .map { |c| run_amplifier_loop(intcodes, c, 0) }
+            .max
     end
 end
 
