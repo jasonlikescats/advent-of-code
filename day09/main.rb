@@ -7,9 +7,11 @@ module Day09
         computer.queue_input(1)
         computer.execute
         
-        loop do
-            puts computer.read_output
+        output = []
+        while out = computer.read_output
+            output << out
         end
+        output
     end
 
     def self.part2(intcodes)

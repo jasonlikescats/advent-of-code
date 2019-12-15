@@ -1,11 +1,13 @@
 module ShipComputer
     require './instructions.rb'
+    require './virtual_memory.rb'
 
     class ProgramProcessor
         def initialize(intcodes)
             @instruction_pointer = 0
             @relative_base = 0
-            @memory = intcodes.map(&:clone)
+            @memory = VirtualMemory.new
+            @memory.memcpy(0, intcodes)
             @input_queue = Queue.new
             @output_queue = Queue.new
         end
@@ -15,15 +17,11 @@ module ShipComputer
         end
 
         def read_output
-            @output_queue.pop
+            output = @output_queue.pop
         end
 
         def execute
             @thread = Thread.new { execution_loop }
-        end
-
-        def halted?
-            !@thread.alive?
         end
 
         private
@@ -36,6 +34,7 @@ module ShipComputer
                 
                 break if instruction.halt?
             end
+            @output_queue.close
         end
 
         def parse_next_instruction()
@@ -91,7 +90,6 @@ module ShipComputer
         end
 
         def update_relative_base value
-            puts "NEW RELBASE = #{value}"
             @relative_base = value
         end
     end

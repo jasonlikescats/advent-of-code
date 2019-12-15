@@ -170,7 +170,6 @@ module ShipComputer
         end
 
         def execute
-            puts "RELBASE: #{@relative_base}, #{@input_params[0].value}"
             new_base = @relative_base + @input_params[0].value
             @relative_base_output_sink.call(new_base)
         end
