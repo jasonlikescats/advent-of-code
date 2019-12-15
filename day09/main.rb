@@ -2,9 +2,9 @@ require "csv"
 require "./ship_computer.rb"
 
 module Day09
-    def self.part1(intcodes)
+    def self.run_computer(intcodes, input)
         computer = ShipComputer::ProgramProcessor.new(intcodes)
-        computer.queue_input(1)
+        computer.queue_input(input)
         computer.execute
         
         output = []
@@ -14,7 +14,12 @@ module Day09
         output
     end
 
+    def self.part1(intcodes)
+        run_computer(intcodes, 1)
+    end
+
     def self.part2(intcodes)
+        run_computer(intcodes, 2)
     end
 end
 
