@@ -46,12 +46,16 @@ module Day11
     end
 
     class HullPaintingRobot
-        def initialize(intcodes)
+        BLACK = 0
+        WHITE = 1
+
+        def initialize(intcodes, start_panel_color = nil)
             @computer = ShipComputer::ProgramProcessor.new(intcodes)
             @computer.execute
 
             @orientation = Orientation.new
-            @painted = {}
+            @painted = { }
+            paint(start_panel_color) if start_panel_color != nil
         end
 
         attr_reader :painted
@@ -72,7 +76,8 @@ module Day11
 
         private
 
-        BLACK = 0
+        LEFT_TURN = 0
+        RIGHT_TURN = 1
 
         def paint_color_at_current_location
             @painted.fetch(@orientation.location.to_tuple, BLACK)
@@ -81,9 +86,6 @@ module Day11
         def paint(color)
             @painted[@orientation.location.to_tuple] = color
         end
-
-        LEFT_TURN = 0
-        RIGHT_TURN = 1
 
         def to_direction_symbol(turn_direction)
             case turn_direction
@@ -102,6 +104,29 @@ module Day11
     end
 
     def self.part2(intcodes)
+        robot = HullPaintingRobot.new(intcodes, HullPaintingRobot::WHITE)
+        robot.run
+        print_painted_hull(robot.painted)
+    end
+
+    def self.print_painted_hull(painted_coords)
+        min_x = painted_coords.keys.map{|c| c[0]}.min
+        max_x = painted_coords.keys.map{|c| c[0]}.max
+        min_y = painted_coords.keys.map{|c| c[1]}.min
+        max_y = painted_coords.keys.map{|c| c[1]}.max
+
+        black_panel = " "
+        white_panel = "#"
+
+        identifier = ""
+        max_y.downto(min_y).each do |y|
+            (min_x..max_x).each do |x|
+                color = painted_coords.fetch([x,y], HullPaintingRobot::BLACK)
+                identifier += color == HullPaintingRobot::BLACK ? black_panel : white_panel
+            end
+            identifier += "\n"
+        end
+        identifier
     end
 end
 
@@ -109,4 +134,4 @@ intcodes = CSV.parse(File.read("input.txt"))[0].map { |x| x.to_i }
 puts "Part 1: " + Day11.part1(intcodes).to_s
 
 intcodes = CSV.parse(File.read("input.txt"))[0].map { |x| x.to_i }
-puts "Part 2: " + Day11.part2(intcodes).to_s
+puts "Part 2:\n" + Day11.part2(intcodes).to_s
