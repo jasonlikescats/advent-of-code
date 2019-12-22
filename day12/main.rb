@@ -14,6 +14,10 @@ module Day12
             "<x=#{format_num @x}, y=#{format_num @y}, z=#{format_num @z}>"
         end
 
+        def duplicate
+            Coordinate.new(@x.dup, @y.dup, @z.dup)
+        end
+
         private
 
         def format_num(num)
@@ -23,6 +27,7 @@ module Day12
 
     class Body
         def initialize(position, velocity)
+            @initial_position, @initial_velocity = position.duplicate, velocity.duplicate
             @position, @velocity = position, velocity
         end
 
@@ -45,6 +50,13 @@ module Day12
             potential = @position.x.abs + @position.y.abs + @position.z.abs
             kinetic = @velocity.x.abs + @velocity.y.abs + @velocity.z.abs
             potential * kinetic
+        end
+
+        def in_initial_state?(dimension)
+            pos_eq = @initial_position.send(dimension) == @position.send(dimension)
+            vel_eq = @initial_velocity.send(dimension) == @velocity.send(dimension)
+
+            pos_eq && vel_eq
         end
 
         private
@@ -104,7 +116,35 @@ module Day12
         bodies.map {|b| b.energy}.reduce(:+)
     end
 
+    def self.repetition_freq_for_dimension(bodies, dimension)
+        first_init_state = 0
+        count = 0
+        loop do
+            step(bodies)
+            count += 1
+            
+            if bodies.all? {|b| b.in_initial_state?(dimension)}
+                # I can't brain out why right now, but the first time you hit this
+                # the intial state again is outside of the normal repeat pattern
+                # so you need to wait until the second occurence (which will be on
+                # the regular schedule) and subtract the difference from the first
+                if first_init_state == 0
+                    first_init_state = count
+                else
+                    return count - first_init_state
+                end
+            end
+        end
+
+        count
+    end
+
     def self.part2(bodies)
+        x_rep = repetition_freq_for_dimension(bodies, :x)
+        y_rep = repetition_freq_for_dimension(bodies, :y)
+        z_rep = repetition_freq_for_dimension(bodies, :z)
+
+        [x_rep, y_rep, z_rep].reduce(1, :lcm)
     end
 end
 
