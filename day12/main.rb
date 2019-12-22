@@ -116,33 +116,22 @@ module Day12
         bodies.map {|b| b.energy}.reduce(:+)
     end
 
-    def self.repetition_freq_for_dimension(bodies, dimension)
-        first_init_state = 0
+    def self.repetition_freq(bodies, dimension)
         count = 0
         loop do
             step(bodies)
             count += 1
             
-            if bodies.all? {|b| b.in_initial_state?(dimension)}
-                # I can't brain out why right now, but the first time you hit this
-                # the intial state again is outside of the normal repeat pattern
-                # so you need to wait until the second occurence (which will be on
-                # the regular schedule) and subtract the difference from the first
-                if first_init_state == 0
-                    first_init_state = count
-                else
-                    return count - first_init_state
-                end
-            end
+            return count if bodies.all? {|b| b.in_initial_state?(dimension)}
         end
-
-        count
     end
 
-    def self.part2(bodies)
-        x_rep = repetition_freq_for_dimension(bodies, :x)
-        y_rep = repetition_freq_for_dimension(bodies, :y)
-        z_rep = repetition_freq_for_dimension(bodies, :z)
+    def self.part2(file_lines)
+        # Run a clean simulation for each dimension or you need to
+        # first get to a "reset" state for the next dimension.
+        x_rep = repetition_freq(bodies_from_input(file_lines), :x)
+        y_rep = repetition_freq(bodies_from_input(file_lines), :y)
+        z_rep = repetition_freq(bodies_from_input(file_lines), :z)
 
         [x_rep, y_rep, z_rep].reduce(1, :lcm)
     end
@@ -151,5 +140,4 @@ end
 bodies1 = Day12.bodies_from_input(File.readlines("input.txt"))
 puts "Part 1: " + Day12.part1(bodies1).to_s
 
-bodies2 = Day12.bodies_from_input(File.readlines("input.txt"))
-puts "Part 2: " + Day12.part2(bodies2).to_s
+puts "Part 2: " + Day12.part2(File.readlines("input.txt")).to_s
