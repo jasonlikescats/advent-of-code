@@ -30,16 +30,23 @@ module Day13
         end
 
         attr_reader :tiles
+        attr_reader :score
 
         def run
             loop do
-                xpos = @computer.read_output
-                ypos = @computer.read_output
-                type = @computer.read_output
+                outputs = [
+                    @computer.read_output,
+                    @computer.read_output,
+                    @computer.read_output
+                ]
 
-                break if xpos == nil || ypos == nil || type == nil
+                break unless outputs.any?
 
-                tiles[[xpos, ypos]] = type                
+                if outputs[0] == -1 && outputs[1] == 0
+                    @score = outputs[2]
+                else
+                    tiles[[outputs[0], outputs[1]]] = outputs[2]
+                end
             end
         end
     end
@@ -52,6 +59,14 @@ module Day13
     end
 
     def self.part2(intcodes)
+        intcodes[0] = 2 # play for free
+
+        game = Game.new(intcodes)
+        game.run
+
+        # TODO: win the game!
+
+        game.score
     end
 end
 
