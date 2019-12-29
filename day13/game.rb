@@ -70,10 +70,7 @@ module Day13
         end
 
         def calculate_input
-            return 0 if @paddle_x.nil? || @ball_x.nil?
-            delta_direction = -(@paddle_x <=> @ball_x)
-
-            delta_direction
+            -(@paddle_x <=> @ball_x)
         end
 
         def render_cell(value)
