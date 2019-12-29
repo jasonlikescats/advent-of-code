@@ -14,7 +14,6 @@ module Day13
             @computer.execute
 
             @tiles = Hash.new { |hash, key| hash[key] = Hash.new }
-            @inputs = []
         end
 
         attr_reader :tiles
@@ -23,6 +22,7 @@ module Day13
         def run
             @renderer = CursesRenderer.new(24, 36, method(:render_cell))
             #@renderer = ConsoleRenderer.new(method(:render_cell)) 
+            #@renderer = NullRenderer.new
 
             loop do
                 outputs = handle_io
@@ -45,7 +45,6 @@ module Day13
             end
             
             @renderer.teardown
-            puts "INPUTS: #{@inputs}"
         end
 
         private
@@ -53,10 +52,7 @@ module Day13
         def handle_io
             loop do
                 if @computer.awaiting_input?
-                    inpt = calculate_input
-#                    puts "QUEUEING INPUT #{inpt}"
-                    @inputs << inpt
-                    @computer.queue_input(inpt)
+                    @computer.queue_input(calculate_input)
                 end
 
                 output = @computer.read_output(non_block: true)

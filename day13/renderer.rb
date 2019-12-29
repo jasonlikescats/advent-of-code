@@ -67,4 +67,12 @@ module Day13
             puts str
         end
     end
+
+    class NullRenderer
+        def teardown
+        end
+
+        def refresh(cell_data)
+        end
+    end
 end

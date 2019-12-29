@@ -15,14 +15,9 @@ module ShipComputer
         end
 
         def awaiting_input?
-            #@input_requested_sem.locked?
             @input_requested_sem.synchronize {
-                return @input_requested_count > 0
+                @input_requested_count > 0 && @output_queue.empty?
             }
-
-            # waiting = @input_queue.num_waiting
-            # puts "waiting == #{waiting}" if waiting > 0
-            # waiting > 0 && @input_queue.empty?
         end
 
         def halted?
@@ -34,9 +29,6 @@ module ShipComputer
                 if @input_requested_count > 0
                     @input_queue << input
                     @input_requested_count -= 1
-#                    puts "QUEUED #{input} (COUNT AFTER = #{@input_requested_count})"
-                else
-#                    puts "SKIPPING QUEUEING INPUT"
                 end
             }
         end
@@ -111,12 +103,8 @@ module ShipComputer
         def get_next_input
             @input_requested_sem.synchronize {
                 @input_requested_count += 1
-#                puts "AWAITING INPUT (COUNT = #{@input_requested_count})"
             }
-            
-            inp = @input_queue.pop
-#            puts "POPPED INPUT #{inp} (COUNT = #{@input_requested_count})"
-            inp
+            @input_queue.pop
         end
 
         def add_output output
