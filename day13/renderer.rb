@@ -21,14 +21,14 @@ module Day13
     end
 
     class CursesRenderer < RendererBase
-        def initialize(row_count, col_count, render_char)
+        def initialize(render_char)
             super(render_char)
 
             Curses.init_screen
             Curses.curs_set 0 # invisible cursor
             Curses.noecho # don't echo keys entered
 
-            @window = Curses::Window.new(row_count, col_count, 0, 0)
+            @window = Curses::Window.new(0, 0, 0, 0)
         end
 
         def teardown
@@ -43,6 +43,7 @@ module Day13
 
         def render_line(str)
             @window << str
+            @window << "\n"
             @window.refresh
         end
     end

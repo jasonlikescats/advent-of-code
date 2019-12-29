@@ -10,33 +10,20 @@ module ShipComputer
             @memory.memcpy(0, intcodes)
             @input_queue = Queue.new
             @output_queue = Queue.new
-            @input_requested_sem = Mutex.new
-            @input_requested_count = 0
-        end
-
-        def awaiting_input?
-            @input_requested_sem.synchronize {
-                @input_requested_count > 0 && @output_queue.empty?
-            }
-        end
-
-        def halted?
-            @output_queue.closed?
         end
 
         def queue_input(input)
-            @input_requested_sem.synchronize {
-                if @input_requested_count > 0
-                    @input_queue << input
-                    @input_requested_count -= 1
-                end
-            }
+            @input_queue << input
         end
 
-        def read_output(non_block = false)
-            return nil if non_block && @output_queue.empty?
-
-            output = @output_queue.pop(non_block)
+        # Produces either raw output from the program being
+        # computed, or a symbol denoting meta state about the
+        # computer. Meta states that may be emitted are:
+        # - :halted (indicating processing is complete)
+        # - :await_input (indicating processing is about to
+        #   block on the input queue)
+        def read_output
+            @output_queue.pop
         end
 
         def execute
@@ -53,7 +40,7 @@ module ShipComputer
                 
                 break if instruction.halt?
             end
-            @output_queue.close
+            add_output :halted
         end
 
         def parse_next_instruction()
@@ -101,9 +88,7 @@ module ShipComputer
         end
 
         def get_next_input
-            @input_requested_sem.synchronize {
-                @input_requested_count += 1
-            }
+            add_output :await_input
             @input_queue.pop
         end
 

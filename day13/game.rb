@@ -9,36 +9,31 @@ module Day13
         PADDLE = 3
         BALL = 4
 
-        def initialize(intcodes)
+        def initialize(intcodes, render_type)
             @computer = ShipComputer::ProgramProcessor.new(intcodes)
             @computer.execute
 
             @tiles = Hash.new { |hash, key| hash[key] = Hash.new }
+            init_renderer(render_type)
         end
 
         attr_reader :tiles
         attr_reader :score
 
         def run
-            @renderer = CursesRenderer.new(24, 36, method(:render_cell))
-            #@renderer = ConsoleRenderer.new(method(:render_cell)) 
-            #@renderer = NullRenderer.new
-
             loop do
-                outputs = handle_io
-
-                break if outputs.nil?
-
-                if outputs[0] == -1 && outputs[1] == 0
-                    @score = outputs[2]
+                output = @computer.read_output
+                case output
+                when :halted
+                    break
+                when :await_input
+                    @computer.queue_input(calculate_input)
+                    next
                 else
-                    cell, row = outputs[0], outputs[1]
-                    tile = outputs[2]
-
-                    @paddle_x = cell if tile == PADDLE
-                    @ball_x = cell if tile == BALL
-
-                    tiles[row][cell] = tile
+                    handle_program_output [
+                        output,
+                        @computer.read_output,
+                        @computer.read_output]
                 end
 
                 @renderer.refresh(tiles)
@@ -49,20 +44,28 @@ module Day13
 
         private
 
-        def handle_io
-            loop do
-                if @computer.awaiting_input?
-                    @computer.queue_input(calculate_input)
-                end
+        def init_renderer(render_type)
+            case render_type
+            when :curses
+                @renderer = CursesRenderer.new(method(:render_cell))
+            when :console
+                @renderer = ConsoleRenderer.new(method(:render_cell)) 
+            when :none
+                @renderer = NullRenderer.new
+            end
+        end
 
-                output = @computer.read_output(non_block: true)
-                return [
-                    output,
-                    @computer.read_output,
-                    @computer.read_output
-                ] if output != nil
-                
-                return nil if @computer.halted?
+        def handle_program_output(triplet)
+            if triplet[0] == -1 && triplet[1] == 0
+                @score = triplet[2]
+            else
+                cell, row = triplet[0], triplet[1]
+                tile = triplet[2]
+
+                @paddle_x = cell if tile == PADDLE
+                @ball_x = cell if tile == BALL
+
+                tiles[row][cell] = tile
             end
         end
 
