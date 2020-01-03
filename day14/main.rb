@@ -31,6 +31,17 @@ module Day14
             @ore_count
         end
 
+        def fuel_count ore_available
+            reset
+            count = 0
+            loop do
+                send "FUEL"
+
+                return count if @ore_count > ore_available
+                count += 1
+            end
+        end
+
         private
 
         def reset
@@ -59,16 +70,17 @@ module Day14
         end
     end
 
-    def self.part1(reactions)
-        reactor = FunctionalReactor.new reactions
+    def self.part1(reactor)
         reactor.ore_count "FUEL"
     end
 
-    def self.part2(reactions)
-        "TODO"
+    def self.part2(reactor)
+        reactor.fuel_count 1000000000000
     end
 end
 
 reactions = Day14.reactions_from_input(File.readlines("input.txt"))
-puts "Part 1: " + Day14.part1(reactions).to_s
-puts "Part 2: " + Day14.part2(reactions).to_s
+reactor = Day14::FunctionalReactor.new reactions
+
+puts "Part 1: " + Day14.part1(reactor).to_s
+puts "Part 2: " + Day14.part2(reactor).to_s
