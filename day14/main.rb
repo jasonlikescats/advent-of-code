@@ -1,5 +1,3 @@
-require "csv"
-
 module Day14
     class Chemical
         def initialize(name, count)
@@ -27,22 +25,35 @@ module Day14
 
         def ore_count chemical
             reset
-            send chemical
+            send chemical, 1
+
             @ore_count
         end
 
-        def fuel_count ore_available
+        def fuel_count ore_available, ore_per_fuel
             reset
             count = 0
+            multipliers = [100000, 1000, 100, 10, 1]
+
             loop do
-                send "FUEL"
+                remaining = ore_available - @ore_count
+                batch_size = get_batch_size remaining, ore_per_fuel
+
+                send "FUEL", batch_size
 
                 return count if @ore_count > ore_available
-                count += 1
+                count += batch_size
             end
         end
 
         private
+
+        def get_batch_size remaining_ore, ore_per_fuel
+            rem_digit_count = remaining_ore.to_s.length
+            fuel_ore_digit_count = ore_per_fuel.to_s.length
+            fudge = 2
+            [10 ** (rem_digit_count - fuel_ore_digit_count - fudge), 1].max
+        end
 
         def reset
             @ore_count = 0
@@ -51,22 +62,22 @@ module Day14
 
         def define_reaction_methods reactions
             reactions.each do |resultant, components|
-                FunctionalReactor.define_method(resultant.name) do
-                    if @stockpile[resultant.name] > 0
-                        @stockpile[resultant.name] -= 1
+                FunctionalReactor.define_method(resultant.name) do |batch_size=1|
+                    if @stockpile[resultant.name] >= batch_size
+                        @stockpile[resultant.name] -= batch_size
                     else
                         components.each do |component|
-                            component.count.times { send component.name }
+                            component.count.times { send component.name, batch_size }
                         end
 
-                        @stockpile[resultant.name] += resultant.count - 1
+                        @stockpile[resultant.name] += (resultant.count - 1) * batch_size
                     end
                 end
             end
         end
 
-        def ORE
-            @ore_count += 1
+        def ORE(batch_size = 1)
+            @ore_count += batch_size
         end
     end
 
@@ -74,13 +85,14 @@ module Day14
         reactor.ore_count "FUEL"
     end
 
-    def self.part2(reactor)
-        reactor.fuel_count 1000000000000
+    def self.part2(reactor, ore_per_fuel)
+        reactor.fuel_count 1000000000000, ore_per_fuel
     end
 end
 
 reactions = Day14.reactions_from_input(File.readlines("input.txt"))
 reactor = Day14::FunctionalReactor.new reactions
 
-puts "Part 1: " + Day14.part1(reactor).to_s
-puts "Part 2: " + Day14.part2(reactor).to_s
+ore_per_fuel = Day14.part1(reactor)
+puts "Part 1: " + ore_per_fuel.to_s
+puts "Part 2: " + Day14.part2(reactor, ore_per_fuel).to_s
