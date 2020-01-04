@@ -33,8 +33,6 @@ module Day14
         def fuel_count ore_available, ore_per_fuel
             reset
             count = 0
-            multipliers = [100000, 1000, 100, 10, 1]
-
             loop do
                 remaining = ore_available - @ore_count
                 batch_size = get_batch_size remaining, ore_per_fuel
