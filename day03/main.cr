@@ -23,6 +23,22 @@ class Map
   def initialize(@data : Array(String))
   end
 
+  def count_trees_from_start(slope : Cartesian2D)
+    start_position = Cartesian2D.new(0, 0)
+    count_trees(start_position, slope)
+  end
+
+  def count_trees(position, slope)
+    count = 0
+
+    next_position = position + slope
+    
+    count += 1 if tree?(next_position)
+    count += count_trees(next_position, slope) unless bottom_row?(next_position)
+
+    count
+  end
+
   def tree?(position : Cartesian2D)
     at_position(position) == TREE
   end
@@ -43,29 +59,30 @@ class Map
   end
 end
 
-def count_trees(map, position, slope)
-  count = 0
-
-  next_position = position + slope
-  
-  count += 1 if map.tree?(next_position)
-  count += count_trees(map, next_position, slope) unless map.bottom_row?(next_position)
-
-  count
-end
-
 def part1
   map = load_input
 
-  start_position = Cartesian2D.new(0, 0)
   slope = Cartesian2D.new(3, 1)
-  count_trees(map, start_position, slope)
+  map.count_trees_from_start(slope)
 end
 
 def part2
-  map = load_input
+  tree_map = load_input
   
-  "TODO"
+  start_position = Cartesian2D.new(0, 0)
+  slopes = [
+    {1, 1},
+    {3, 1},
+    {5, 1},
+    {7, 1},
+    {1, 2}
+  ].map { |slope_xy| Cartesian2D.new(*slope_xy) }
+  
+  slope_trees = ->tree_map.count_trees_from_start(Cartesian2D)
+  slopes
+    .map(&slope_trees)
+    .map(&.to_i64)
+    .product
 end
 
 puts "Part 1 Result: \n#{part1}"
