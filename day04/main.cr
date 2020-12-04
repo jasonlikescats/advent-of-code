@@ -1,27 +1,5 @@
 require "file"
-
-class Passport
-  REQUIRED_FIELDS = %w[
-    byr
-    iyr
-    eyr
-    hgt
-    hcl
-    ecl
-    pid
-  ]
-
-  getter fields
-
-  def initialize(@fields : Hash(String, String))
-  end
-
-  def valid?
-    REQUIRED_FIELDS.all? do |required_field|
-      fields.has_key?(required_field)
-    end
-  end
-end
+require "./passport"
 
 def load_input
   File.read_lines("input")
@@ -51,20 +29,20 @@ def parse_input(lines)
   end
   passports_data << passport_data
 
-  passports_data.map { |data| parse_passport(data) }
+  passports_data.map(&->parse_passport(String))
+end
+
+def get_passports
+  data = load_input
+  parse_input(data)
 end
 
 def part1
-  data = load_input
-  passports = parse_input(data)
-
-  passports.count(&.valid?)
+  get_passports.count(&.required_fields?)
 end
 
 def part2
-  data = load_input
-  
-  "TODO"
+  get_passports.count(&.valid?)
 end
 
 puts "Part 1 Result: \n#{part1}"
