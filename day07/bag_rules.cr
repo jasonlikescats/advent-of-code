@@ -31,6 +31,14 @@ class BagRules
       can_contain_directly?(description) || can_contain_nested?(description, rule_set)
     end
 
+    def contents_count(rule_set)
+      return 0 if contents.empty?
+
+      contents.sum do |desc, count|
+        count + count * rule_set[desc].contents_count(rule_set)
+      end
+    end
+
     private def can_contain_directly?(description)
       contents.find { |desc, _count| desc == description } != nil
     end
@@ -53,9 +61,13 @@ class BagRules
     new(rules.map { |rule| {rule.description, rule} }.to_h)
   end
 
-  def count_containers(description)
+  def count_allowed_containers(description)
     rules.count do |_desc, rule|
       rule.can_contain?(description, rules)
     end
+  end
+
+  def count_contained_bags(description)
+    rules[description].contents_count(rules)
   end
 end

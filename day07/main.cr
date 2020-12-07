@@ -6,13 +6,11 @@ def load_rules
 end
 
 def part1
-  load_rules.count_containers("shiny gold")
+  load_rules.count_allowed_containers("shiny gold")
 end
 
 def part2
-  rules = load_rules
-  
-  "TODO"
+  load_rules.count_contained_bags("shiny gold")
 end
 
 puts "Part 1 Result: \n#{part1}"
