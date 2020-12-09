@@ -64,10 +64,18 @@ class Bootloader
   end
 
   def step
-    @state = next_instruction.execute(state)
+    raise "Terminated" if terminated?
+
+    @state = next_instruction.not_nil!.execute(state)
   end
 
   def next_instruction
+    return nil if terminated?
+
     instructions[state.program_counter]
+  end
+
+  def terminated?
+    state.program_counter >= instructions.size
   end
 end
