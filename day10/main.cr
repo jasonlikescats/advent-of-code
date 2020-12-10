@@ -64,7 +64,7 @@ def part2
   # the case for my puzzle input or any of the sample input.)
   encoded = RunLengthEncoder.encode(steps)
   single_step_run_lengths = encoded
-    .select { |enc| enc.value == 1 && enc.count > 1 }
+    .select { |enc| enc.value == 1 }
     .map(&.count)
 
   combination_factors = single_step_run_lengths.map do |step_run|
