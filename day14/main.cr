@@ -1,66 +1,44 @@
 require "file"
+require "./mask"
+require "./masked_operation"
 
-class Mask
-  getter zero_mask : Int64, one_mask : Int64
-
-  def initialize(mask : String)
-    @zero_mask = parse_mask(mask, 0)
-    @one_mask = parse_mask(mask, 1)
-  end
-
-  def apply(num)
-    num &= zero_mask
-    num |= one_mask
-  end
-
-  private def parse_mask(mask : String, bit : Int32)
-    default_bit = bit ^ 1
-    mask.gsub('X', "#{default_bit}".chars[0]).to_i64(base: 2)
-  end
-end
-
-class MaskedOperation
-  getter address : Int32, unmasked_value : Int64, mask : Mask
-
-  def initialize(@address, @unmasked_value, @mask)
-  end
-
-  def masked_value
-    mask.apply(unmasked_value)
-  end
-end
-
-def parse_masked_operations(lines)
-  bitmask = lines[0].split(" = ")[1]
-  mask = Mask.new(bitmask)
+def parse_masked_operations(mask_type, lines)
+  mask_value = lines[0].split(" = ")[1]
+  mask = mask_type.new(mask_value)
 
   pattern = /mem\[(\d+)\] = (\d+)/
   lines.skip(1).map do |op_line|
     matches = pattern.match(op_line).not_nil!
-    MaskedOperation.new(matches[1].to_i, matches[2].to_i64, mask)
+    MaskedOperation.new(matches[1].to_i64, matches[2].to_i64, mask)
   end
 end
 
-def load_input
+def load_input(mask_type)
   masked_chunks = File.read("input").split("\nmask")
   masked_chunks
     .map { |chunk| chunk.split('\n') }
-    .flat_map(&->parse_masked_operations(Array(String)))
+    .flat_map { |chunk_lines| parse_masked_operations(mask_type, chunk_lines) }
 end
 
 def part1
-  operations = load_input
+  operations = load_input(OverwritingMask)
 
-  memory = Hash(Int32, Int64).new
-  operations.each { |op| memory[op.address] = op.masked_value }
-  
+  memory = Hash(Int64, Int64).new
+  operations.each { |op| memory[op.address] = op.apply_mask(op.value)[0] }
+
   memory.values.sum
 end
 
 def part2
-  data = load_input
-  
-  "TODO"
+  operations = load_input(AddressMask)
+
+  memory = Hash(Int64, Int64).new
+  operations.each do |op|
+    addresses = op.apply_mask(op.address)
+    addresses.each { |addr| memory[addr] = op.value }
+  end
+
+  memory.values.sum
 end
 
 puts "Part 1 Result: \n#{part1}"
