@@ -12,7 +12,7 @@ end
 def part2
   data = load_input
   
-  "TODO"
+  MemoryGame.new(load_input).play(30000000)
 end
 
 puts "Part 1 Result: \n#{part1}"
