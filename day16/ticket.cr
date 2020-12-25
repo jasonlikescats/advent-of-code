@@ -7,9 +7,26 @@ class Ticket
     @values = data.split(',').map(&.to_i)
   end
 
-  def scanning_error_rate(field_rules : Array(FieldRule))
-    values.find do |value|
-      !field_rules.any? { |rule| rule.valid?(value) }
+  def scanning_error_field(field_rules)
+    found = field_options(field_rules).find { |value, fields| fields.empty? }
+    
+    found ? found[0] : 0
+  end
+  
+  def valid?(field_rules)
+    scanning_error_field(field_rules) == 0
+  end
+
+  def ordered_field_options(field_rules)
+    field_options(field_rules).map { |_val, options| options }
+  end
+
+  def field_options(field_rules)
+    values.map do |value|
+      possible_fields = field_rules
+        .select { |rule| rule.valid?(value) }
+        .map { |rule| rule.name }
+      {value, possible_fields}
     end
   end
 end
