@@ -1,4 +1,4 @@
-require "./grid_3d"
+require "./grid_4d"
 
 class CubeGrid
   class Cube
@@ -35,11 +35,12 @@ class CubeGrid
     end
   end
 
-  getter cubes : Grid3D(Cube)
+  getter cubes : Grid4D(Cube)
+  getter three_dimensional : Bool
 
-  def initialize(z_slice)
+  def initialize(z_slice, @three_dimensional = false)
     slice_cubes = parse_cubes(z_slice)
-    @cubes = Grid3D(Cube).new([slice_cubes])
+    @cubes = Grid4D(Cube).new([[slice_cubes]])
   end
 
   def serialize
@@ -49,7 +50,7 @@ class CubeGrid
   def step_simulation
     next_states = Hash(Cube, Char).new
 
-    cubes.expand { Cube.new(Cube::INACTIVE) }
+    expand_cubiverse
 
     cubes.each_with_index do |cube, coords|
       neighboring_cubes = cubes.neighbors(coords)
@@ -71,5 +72,13 @@ class CubeGrid
 
   private def parse_row(zy_vec)
     zy_vec.chars.map(&->Cube.new(Char))
+  end
+
+  private def expand_cubiverse
+    if three_dimensional
+      cubes.expand_3D { Cube.new(Cube::INACTIVE) }
+    else
+      cubes.expand { Cube.new(Cube::INACTIVE) }
+    end
   end
 end
