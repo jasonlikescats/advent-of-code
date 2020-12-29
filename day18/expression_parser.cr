@@ -5,7 +5,9 @@ module ExpressionParser
 
   # Parses into an AST using the shunting-yard algorithm (modified
   # for our specific operator precedence quirks)
-  def self.to_tree(equation)
+  # The precedence comparer function provided must return false if
+  # argument one has greater precedence than argument two.
+  def self.to_tree(equation : String, precedence_comparer : Char, Char -> Bool)
     operators = Array(Char).new
     tree_nodes = Array(Node).new
 
@@ -13,7 +15,9 @@ module ExpressionParser
       if numeric?(token)
         tree_nodes << Node.new(token)
       elsif operator?(token)
-        while !operators.empty? && operators.last != '('
+        while !operators.empty? && 
+          precedence_comparer.call(token, operators.last) &&
+          operators.last != '('
           output_operator(operators.pop, tree_nodes)
         end
         operators << token
