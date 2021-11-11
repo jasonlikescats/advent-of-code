@@ -1,7 +1,15 @@
-# AdventOfCode2019
+# Advent of Code 2019
 
 ## Overview
-Solutions here are for the problems at: https://adventofcode.com/2019
 
-This year, I'll be completing solutions in Ruby to learn the language. Please
-excuse any ugly or non-idiomatic code.
+Solutions are in Ruby, though I can't remember what version.
+Given the timeline, it's likely Ruby 2.6. I was learning Ruby
+on the fly though, so there's nothing too exotic; it'll probably
+run fine much further back than 2.6.
+
+## Usage
+
+Each day has a `main.rb` script that will output both part 1 & 2
+solutions when run (provided `input.txt` exists in the directory
+alongside the script).
+

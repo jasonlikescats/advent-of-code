@@ -1,5 +1,4 @@
-# AdventOfCode2018
-Playing around with .NET Core and brushing up on my F#
+# Advent of Code 2018
 
 # Usage
 All set up to run in Visual Studio Code. 3 tasks are available:

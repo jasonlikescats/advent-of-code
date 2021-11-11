@@ -1,9 +1,7 @@
-# AdventOfCode2020
-
-## Overview
-Solutions here are for the problems at: https://adventofcode.com/2020
+# Advent of Code 2020
 
 ## Instructions
+
 Developed and tested using Crystal 0.35.1:
 ```
 $ crystal -v
