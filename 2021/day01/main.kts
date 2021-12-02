@@ -26,8 +26,6 @@ fun part2(depths: List<Int>): Int {
     return increasingCounter
 }
 
-fun main() {
-    val depths = readInput()
-    println("Part 1 Result: \n${part1(depths)}\n")
-    println("Part 2 Result: \n${part2(depths)}")
-}
+val depths = readInput()
+println("Part 1 Result: \n${part1(depths)}\n")
+println("Part 2 Result: \n${part2(depths)}")
