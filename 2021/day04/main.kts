@@ -42,7 +42,7 @@ class Board(serialized: String) {
     }
 
     fun score(lastDraw: Int): Int {
-        if (!isWinner()) {
+        if (!winnerCache) {
             throw Exception("Score is invalid unless board is a winner")
         }
 
