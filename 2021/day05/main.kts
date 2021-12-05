@@ -1,4 +1,5 @@
 import java.io.File
+import kotlin.math.sign
 
 data class Point(val x: Int, val y: Int)
 
@@ -21,18 +22,10 @@ class Line(val start: Point, val end: Point): Iterable<Point> {
             val yDelta = end.y - curr.y
             val retValue = curr
 
-            curr = when {
-                xDelta == 0 && yDelta == 0 -> end
-                xDelta > 0 && yDelta == 0 -> Point(curr.x + 1, curr.y)
-                xDelta < 0 && yDelta == 0 -> Point(curr.x - 1, curr.y)
-                xDelta == 0 && yDelta > 0 -> Point(curr.x, curr.y + 1)
-                xDelta == 0 && yDelta < 0 -> Point(curr.x, curr.y - 1)
-                xDelta > 0 && yDelta > 0 -> Point(curr.x + 1, curr.y + 1)
-                xDelta > 0 && yDelta < 0 -> Point(curr.x + 1, curr.y - 1)
-                xDelta < 0 && yDelta > 0 -> Point(curr.x - 1, curr.y + 1)
-                xDelta < 0 && yDelta < 0 -> Point(curr.x - 1, curr.y - 1)
-                else -> throw Exception("Unexpected line type")
-            }
+            curr = Point(
+                curr.x + xDelta.sign,
+                curr.y + yDelta.sign
+            )
 
             return retValue
         }
