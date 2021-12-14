@@ -14,38 +14,31 @@ class DepthMap(input: File) {
         }.toTypedArray()
     }
 
-    fun lowPoints(): List<Int> {
+    fun lowPoints(): List<Coord> {
         val lowPoints = mutableListOf<Coord>()
 
-        visitAll { coord ->
-            if (isLowPoint(coord)) {
-                lowPoints.add(coord)
+        for (row in grid.indices) {
+            for (col in grid[row].indices) {
+                val coord = Coord(row, col)
+                if (isLowPoint(coord)) {
+                    lowPoints.add(coord)
+                }
             }
         }
 
-        return lowPoints.map { grid[it.row][it.col] }
+        return lowPoints
     }
 
     fun findBasins(): List<Set<Coord>> {
         val basins = mutableListOf<Set<Coord>>()
 
-        visitAll { coord ->
-            if (!basins.any { it.contains(coord) } && !isPeak(coord)) {
-                val basin = mutableSetOf<Coord>()
-                fillBasin(coord, basin)
-                basins.add(basin)
-            }
+        lowPoints().forEach {
+            val basin = mutableSetOf<Coord>()
+            fillBasin(it, basin)
+            basins.add(basin)
         }
 
         return basins
-    }
-
-    private fun visitAll(handler: (Coord) -> Unit) {
-        for (row in grid.indices) {
-            for (col in grid[row].indices) {
-                handler(Coord(row, col))
-            }
-        }
     }
 
     private fun isLowPoint(coord: Coord): Boolean {
@@ -88,7 +81,8 @@ class DepthMap(input: File) {
 val depthMap = DepthMap(File("input"))
 
 fun part1(): Int {
-    val riskLevels = depthMap.lowPoints().map { it + 1 }
+    val lowPoints = depthMap.lowPoints()
+    val riskLevels = lowPoints.map { depthMap.grid[it.row][it.col] + 1 }
     return riskLevels.fold(0) { acc, it -> acc + it }
 }
 
