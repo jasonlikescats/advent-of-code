@@ -1,4 +1,5 @@
 import java.io.File
+import kotlin.system.measureTimeMillis
 
 class DepthMap(input: File) {
     data class Coord(val row: Int, val col: Int)
@@ -92,5 +93,11 @@ fun part2(): Int {
     return biggestThree.fold(1) { acc, it -> acc * it }
 }
 
-println("Part 1 Result: \n${part1()}\n")
-println("Part 2 Result: \n${part2()}")
+val p1: Int
+    val t1 = measureTimeMillis { p1 = part1() }
+
+val p2: Int
+    val t2 = measureTimeMillis { p2 = part2() }
+
+println("Part 1 Result ($t1 ms): \n$p1\n")
+println("Part 2 Result ($t2 ms): \n$p2")
