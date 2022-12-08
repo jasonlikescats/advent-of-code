@@ -1,12 +1,9 @@
-import functools
 import sys
 
 def read_input_file():
     filename = get_input_filename()
     with open(filename) as file:
-        lines = [line.rstrip() for line in file]
-
-    return lines
+        return file.read()
 
 def get_input_filename():
     if len(sys.argv) > 1:
@@ -14,33 +11,21 @@ def get_input_filename():
     else:
         return "input"
 
-def elf_calories(lines):
-    cals = [[]]
+def elf_calories(grouped_lines):
+    return [sum(list(map(int, elf_cals.split()))) for elf_cals in grouped_lines]
 
-    for line in lines:
-        if line:
-            calories = int(line)
-            cals[-1].append(calories)
-        else:
-            cals.append([])
+def part1(grouped_lines):
+    return max(elf_calories(grouped_lines))
 
-    return map(sum, cals)
-
-def sum(elf_calories):
-    return functools.reduce(lambda x, y: x + y, elf_calories)
-
-def part1(lines):
-    return max(elf_calories(lines))
-
-def part2(lines):
-    cals_list = list(elf_calories(lines))
+def part2(grouped_lines):
+    cals_list = list(elf_calories(grouped_lines))
     cals_list.sort()
     return sum(cals_list[-3:])
 
 def main():
-    lines = read_input_file()
-    print(f"Part 1: {part1(lines)}")
-    print(f"Part 2: {part2(lines)}")
+    groups = read_input_file().split("\n\n")
+    print(f"Part 1: {part1(groups)}")
+    print(f"Part 2: {part2(groups)}")
 
 if __name__ == "__main__":
     main()
