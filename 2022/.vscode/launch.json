@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "console": "internalConsole",
-            "args": ["-d","2","-f","sample"]
+            "args": ["-d","3","-f","sample"]
         }
     ]
 }
