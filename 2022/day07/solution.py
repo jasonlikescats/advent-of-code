@@ -81,4 +81,15 @@ def part1(input):
     return sum(small_dir_sizes)
 
 def part2(input):
-    return -1
+    disk_size = 70000000
+    update_size = 30000000
+    
+    sizes = {}
+    TerminalParser().parse(input.split('\n')).calculate_recursive_sizes(sizes)
+
+    unused_space = disk_size - sizes['/']
+    needed_space = update_size - unused_space
+
+    sorted_dirs = sorted(sizes.items(), key=lambda x:x[1])
+    smallest = next(dir[1] for dir in sorted_dirs if dir[1] >= needed_space)
+    return smallest
