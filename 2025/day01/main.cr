@@ -3,21 +3,44 @@ require "file"
 class Dial
   getter :position
   getter :zeros
+  getter :crossed_zeros
 
   def initialize
     @position = 50
     @zeros = 0
+    @crossed_zeros = 0
     @positions_count = 100
   end
 
   def turn_left(amount)
-    right_equiv = @positions_count - (amount % @positions_count)
-    turn_right(right_equiv)
+    if @position == 0
+      @position = @positions_count
+    end
+
+    new_pos = @position - amount
+    
+    while new_pos < 0
+      new_pos += @positions_count
+      @crossed_zeros += 1
+    end
+
+    @position = new_pos
+
+    if @position == 0
+      @zeros += 1
+      @crossed_zeros += 1
+    end
   end
 
   def turn_right(amount)
-    @position += amount
-    @position %= @positions_count
+    new_pos = @position + amount
+
+    while new_pos >= @positions_count
+      new_pos -= @positions_count
+      @crossed_zeros += 1
+    end
+
+    @position = new_pos
 
     @zeros += 1 if @position == 0
   end
@@ -37,8 +60,6 @@ def execute_combination(data, dial)
     when 'R'
       dial.turn_right(amount)
     end
-
-    puts(dial.position)
   end
 end
 
@@ -52,8 +73,10 @@ end
 
 def part2
   data = load_input
-  
-  "TODO"
+  dial = Dial.new
+  execute_combination(data, dial)
+
+  dial.crossed_zeros
 end
 
 puts "Part 1 Result: \n#{part1}"
