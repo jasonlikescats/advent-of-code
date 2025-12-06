@@ -8,35 +8,40 @@ def load_input
     .map { |arr| Tuple(Int64, Int64).from(arr) }
 end
 
-def is_repeating?(num)
-  str_num = num.to_s
-  return false unless str_num.size.even?
+def repeats_n?(str, n)
+  return false unless str.size % n == 0
 
-  half = str_num.size.tdiv(2)
-  front = str_num[0...half]
-  back = str_num[half..-1]
+  part_size = str.size.tdiv(n)
+  ptrs = (0...n).map { |i| i * part_size }
+  parts = ptrs.map { |ptr| str[ptr...(ptr + part_size)] }
 
-  front == back
+  parts.all? { |p| p == parts[0] }
 end
 
-def part1
-  ranges = load_input
+def is_repeating?(num)
+  str_num = num.to_s
+  (2..str_num.size).any? { |n| repeats_n?(str_num, n) }
+end
 
+def sum_repeating(ranges)
   repeats = ranges.flat_map do |r1, r2| 
-    # iterate integers from r1 to r2
     (r1..r2)
       .to_a
-      .map { |i| is_repeating?(i) ? i : nil }
+      .map { |i| yield(i) ? i : nil }
       .compact
   end
 
   repeats.sum
 end
 
+def part1
+  ranges = load_input
+  sum_repeating(ranges) { |i| repeats_n?(i.to_s, 2) }
+end
+
 def part2
-  data = load_input
-  
-  "TODO"
+  ranges = load_input
+  sum_repeating(ranges) { |i| is_repeating?(i) }
 end
 
 puts "Part 1 Result: \n#{part1}"
