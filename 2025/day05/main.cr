@@ -1,7 +1,7 @@
 require "file"
 
 def load_input
-    filename = "input"
+  filename = "input"
 
   {% if flag?(:sample) %}
     filename = "sample_input"
