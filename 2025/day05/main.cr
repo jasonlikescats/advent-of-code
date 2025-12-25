@@ -35,9 +35,25 @@ def part1
 end
 
 def part2
-  data = load_input
-  
-  "TODO"
+  ranges, _ids = load_input
+  sorted_ranges = ranges.sort_by!(&.begin)
+
+  exclusive_ranges = [sorted_ranges[0]]
+  sorted_ranges.each do |range|
+    last_range = exclusive_ranges[-1]
+    
+    if last_range.includes?(range.begin)
+      if !last_range.includes?(range.end)
+        # adjust end of last range to include this one
+        exclusive_ranges[-1] = (last_range.begin..range.end)
+      end
+    else
+      # range is exclusive of known ranges
+      exclusive_ranges << range
+    end
+  end
+
+  exclusive_ranges.sum { |r| r.end - r.begin + 1 }
 end
 
 puts "Part 1 Result: \n#{part1}"
