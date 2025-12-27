@@ -1,7 +1,13 @@
 require "file"
 
 def load_input
-  File.read_lines("input")
+  filename = "input"
+
+  {% if flag?(:sample) %}
+    filename = "sample_input"
+  {% end %}
+  
+  File.read_lines(filename)
 end
 
 def part1
